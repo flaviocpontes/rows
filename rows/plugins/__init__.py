@@ -16,10 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from . import plugin_json as json
-from . import plugin_json_lines as json_lines
 from . import dicts as dicts
 from . import plugin_csv as csv
 from . import txt as txt
+
+try:
+    from . import plugin_json_lines as json_lines
+except ImportError:
+    json_lines = None
 
 try:
     from . import plugin_html as html

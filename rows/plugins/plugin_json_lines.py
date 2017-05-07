@@ -19,7 +19,7 @@ from __future__ import unicode_literals
 
 import datetime
 import decimal
-import json
+import json_lines
 
 import six
 
@@ -34,10 +34,16 @@ def import_from_json_lines(filename_or_fobj, encoding='utf-8', *args, **kwargs):
     If a file-like object is provided it MUST be open in text (non-binary) mode
     on Python 3 and could be open in both binary or text mode on Python 2.
     '''
+    filename, fobj = get_filename_and_fobj(filename_or_fobj)
+
+    json_lines_obj = list(json_lines.reader(fobj))
+    field_names = list(json_lines_obj[0].keys())
+    table_rows = [[item[key] for key in field_names] for item in json_lines_obj]
+
     meta = {'imported_from': 'json-lines',
-            'filename': filename_or_fobj,
+            'filename': filename,
             'encoding': encoding, }
-    return create_table([], meta=meta, *args, **kwargs)
+    return create_table([field_names] + table_rows, meta=meta, *args, **kwargs)
 
 
 def _convert(value, field_type, *args, **kwargs):
