@@ -42,6 +42,10 @@ export_to_txt = plugins.txt.export_to_txt
 
 # Have dependencies
 
+if plugins.json_lines:
+    import_from_json_lines = plugins.json_lines.import_from_json_lines
+    export_to_json_lines = plugins.json_lines.export_to_json_lines
+
 if plugins.html:
     import_from_html = plugins.html.import_from_html
     export_to_html = plugins.html.export_to_html
