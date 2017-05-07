@@ -17,6 +17,7 @@
 
 import unittest
 from unittest import mock
+import tempfile
 
 import rows
 
@@ -25,7 +26,7 @@ import tests.utils as utils
 
 class PluginJsonLinesTestCase(utils.RowsTestMixIn, unittest.TestCase):
 
-    plugin_name = 'json-lines'
+    plugin_name = 'json_lines'
     file_extension = 'jsonl'
     filename = 'tests/data/all-field-types.jsonl'
     encoding = 'utf-8'
@@ -47,7 +48,7 @@ class PluginJsonLinesTestCase(utils.RowsTestMixIn, unittest.TestCase):
         self.assertEqual(result, 42)
 
         call = mocked_create_table.call_args
-        kwargs['meta'] = {'imported_from': 'json-lines',
+        kwargs['meta'] = {'imported_from': 'json_lines',
                           'filename': self.filename,
                           'encoding': self.encoding, }
         self.assertEqual(call[1], kwargs)
@@ -66,3 +67,21 @@ class PluginJsonLinesTestCase(utils.RowsTestMixIn, unittest.TestCase):
             table_2 = rows.import_from_json_lines(fobj)
             call_args = mocked_create_table.call_args_list[1]
             self.assert_create_table_data(call_args, field_ordering=False)
+
+    @mock.patch('rows.plugins.plugin_json_lines.prepare_to_export')
+    def test_export_to_json_lines_uses_prepare_to_export(self,
+            mocked_prepare_to_export):
+        temp = tempfile.NamedTemporaryFile(delete=False, mode='wb')
+        self.files_to_delete.append(temp.name)
+        kwargs = {'test': 123, 'parameter': 3.14, }
+        mocked_prepare_to_export.return_value = \
+                iter([utils.table.fields.keys()])
+
+        rows.export_to_json_lines(utils.table, temp.name, **kwargs)
+        self.assertTrue(mocked_prepare_to_export.called)
+        self.assertEqual(mocked_prepare_to_export.call_count, 1)
+
+        call = mocked_prepare_to_export.call_args
+        self.assertEqual(call[0], (utils.table, ))
+        self.assertEqual(call[1], kwargs)
+

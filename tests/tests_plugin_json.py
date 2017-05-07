@@ -80,7 +80,7 @@ class PluginJsonTestCase(utils.RowsTestMixIn, unittest.TestCase):
             self.assert_create_table_data(call_args, field_ordering=False)
 
     @mock.patch('rows.plugins.plugin_json.create_table')
-    def test_import_from_json_uses_create_table(self, mocked_create_table):
+    def test_import_from_iso_encoded_json_uses_create_table(self, mocked_create_table):
         mocked_create_table.return_value = 42
         kwargs = {'some_key': 123, 'other': 456, }
         encoding = 'iso-8859-15'
